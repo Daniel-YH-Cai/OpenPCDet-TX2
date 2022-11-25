@@ -4,7 +4,7 @@ Written by Jiageng Mao
 """
 
 import numpy as np
-import numba
+
 
 from .iou_utils import rotate_iou_gpu_eval
 from .eval_utils import compute_split_parts, overall_filter, distance_filter, overall_distance_filter
@@ -149,7 +149,7 @@ def get_evaluation_results(gt_annos, pred_annos, classes,
         print(ret_str)
     return ret_str, ret_dict
 
-@numba.jit(nopython=True)
+
 def get_thresholds(scores, num_gt, num_pr_points):
     eps = 1e-6
     scores.sort()
@@ -173,7 +173,7 @@ def get_thresholds(scores, num_gt, num_pr_points):
             recall_level += 1 / num_pr_points
     return thresholds
 
-@numba.jit(nopython=True)
+
 def accumulate_scores(iou, pred_scores, gt_flag, pred_flag, iou_threshold):
     num_gt = iou.shape[0]
     num_pred = iou.shape[1]
@@ -207,7 +207,7 @@ def accumulate_scores(iou, pred_scores, gt_flag, pred_flag, iou_threshold):
 
     return accum_scores[:accum_idx]
 
-@numba.jit(nopython=True)
+
 def compute_statistics(iou, pred_scores, gt_flag, pred_flag, score_threshold, iou_threshold):
     num_gt = iou.shape[0]
     num_pred = iou.shape[1]
