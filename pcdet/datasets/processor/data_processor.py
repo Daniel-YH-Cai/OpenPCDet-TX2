@@ -1,7 +1,7 @@
 from functools import partial
 
 import numpy as np
-from skimage import transform
+# from skimage import transform
 
 from ...utils import box_utils, common_utils
 
@@ -183,16 +183,16 @@ class DataProcessor(object):
             return partial(self.calculate_grid_size, config=config)
         return data_dict
 
-    def downsample_depth_map(self, data_dict=None, config=None):
-        if data_dict is None:
-            self.depth_downsample_factor = config.DOWNSAMPLE_FACTOR
-            return partial(self.downsample_depth_map, config=config)
-
-        data_dict['depth_maps'] = transform.downscale_local_mean(
-            image=data_dict['depth_maps'],
-            factors=(self.depth_downsample_factor, self.depth_downsample_factor)
-        )
-        return data_dict
+    # def downsample_depth_map(self, data_dict=None, config=None):
+    #     if data_dict is None:
+    #         self.depth_downsample_factor = config.DOWNSAMPLE_FACTOR
+    #         return partial(self.downsample_depth_map, config=config)
+    #
+    #     data_dict['depth_maps'] = transform.downscale_local_mean(
+    #         image=data_dict['depth_maps'],
+    #         factors=(self.depth_downsample_factor, self.depth_downsample_factor)
+    #     )
+    #     return data_dict
 
     def forward(self, data_dict):
         """

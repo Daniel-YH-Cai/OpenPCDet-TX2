@@ -5,7 +5,7 @@ import re
 from collections import OrderedDict
 
 import numpy as np
-from skimage import io
+from pcdet.datasets import io
 
 
 def get_image_index_str(img_idx):

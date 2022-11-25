@@ -3,7 +3,7 @@ import pickle
 import os
 import copy
 import numpy as np
-from skimage import io
+from pcdet.datasets import io
 import torch
 import SharedArray
 import torch.distributed as dist
