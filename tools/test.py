@@ -23,7 +23,7 @@ def parse_config():
     parser.add_argument('--cfg_file', type=str, default=None, help='specify the config for training')
 
     parser.add_argument('--batch_size', type=int, default=None, required=False, help='batch size for training')
-    parser.add_argument('--workers', type=int, default=4, help='number of workers for dataloader')
+    parser.add_argument('--workers', type=int, default=0, help='number of workers for dataloader')
     parser.add_argument('--extra_tag', type=str, default='default', help='extra tag for this experiment')
     parser.add_argument('--ckpt', type=str, default=None, help='checkpoint to start from')
     parser.add_argument('--pretrained_model', type=str, default=None, help='pretrained_model')
@@ -182,8 +182,8 @@ def main():
 
     if dist_test:
         logger.info('total_batch_size: %d' % (total_gpus * args.batch_size))
-    for key, val in vars(args).items():
-        logger.info('{:16} {}'.format(key, val))
+    # for key, val in vars(args).items():
+    #     logger.info('{:16} {}'.format(key, val))
     log_config_to_file(cfg, logger=logger)
 
     ckpt_dir = args.ckpt_dir if args.ckpt_dir is not None else output_dir / 'ckpt'
