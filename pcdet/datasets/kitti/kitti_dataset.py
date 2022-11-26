@@ -106,7 +106,7 @@ class KittiDataset(DatasetTemplate):
         return depth
 
     def get_calib(self, idx):
-        calib_file = self.root_split_path / 'calib' / ('%s.txt' % idx)
+        calib_file = self.root_split_path / 'calib' / '000000.txt'
         assert calib_file.exists()
         return calibration_kitti.Calibration(calib_file)
 
