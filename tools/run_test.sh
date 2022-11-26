@@ -1,0 +1,1 @@
+python3 demo.py --cfg_file cfgs/kitti_models/pv_rcnn.yaml     --ckpt /home/nvidia/Desktop/motivation-experiment/det3dd/OpenPCDet/ckpt/pv_rcnn_8369.pth     --data_path /media/nvidia/Hello_SSD/code/yikang/kitti/files_0018/kitti/training/velodyne_reduced/000001.bin
