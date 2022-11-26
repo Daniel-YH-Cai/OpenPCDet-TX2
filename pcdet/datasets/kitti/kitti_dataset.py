@@ -74,7 +74,8 @@ class KittiDataset(DatasetTemplate):
             image: (H, W, 3), RGB Image
         """
         img_file = self.root_split_path / 'image_2' / ('%s.png' % idx)
-        assert img_file.exists()
+        if not img_file.exists():
+            raise FileNotFoundError(f"{img_file} cannot be found")
         image = io.imread(img_file)
         image = image.astype(np.float32)
         image /= 255.0
@@ -82,12 +83,14 @@ class KittiDataset(DatasetTemplate):
 
     def get_image_shape(self, idx):
         img_file = self.root_split_path / 'image_2' / ('%s.png' % idx)
-        assert img_file.exists()
+        if not img_file.exists():
+            raise FileNotFoundError(f"{img_file} cannot be found")
         return np.array(io.imread(img_file).shape[:2], dtype=np.int32)
 
     def get_label(self, idx):
         label_file = self.root_split_path / 'label_2' / ('%s.txt' % idx)
-        assert label_file.exists()
+        if not label_file.exists():
+            raise FileNotFoundError(f"{label_file} cannot be found")
         return object3d_kitti.get_objects_from_label(label_file)
 
     def get_depth_map(self, idx):
@@ -107,7 +110,8 @@ class KittiDataset(DatasetTemplate):
 
     def get_calib(self, idx):
         calib_file = self.root_split_path / 'calib' / '000000.txt'
-        assert calib_file.exists()
+        if not calib_file.exists():
+            raise FileNotFoundError(f"{calib_file} cannot be found")
         return calibration_kitti.Calibration(calib_file)
 
     def get_road_plane(self, idx):
