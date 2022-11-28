@@ -103,7 +103,7 @@ def main():
             vis_pickle['result']=pred_dicts[0]
             for key in ['pred_boxes','pred_scores','pred_labels']:
                 vis_pickle['result'][key]=vis_pickle['result'][key].cpu().numpy()
-            print(pred_dicts)
+            print(vis_pickle)
             with open("demo_result.pkl",'wb') as f:
                 pickle.dump(vis_pickle,f)
             # V.draw_scenes(
