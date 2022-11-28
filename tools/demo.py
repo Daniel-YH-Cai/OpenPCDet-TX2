@@ -102,7 +102,7 @@ def main():
             vis_pickle['points']=data_dict['points'][:,1:]
             vis_pickle['result']=pred_dicts[0]
             print(pred_dicts)
-            with open("demo_result",'w') as f:
+            with open("demo_result",'wb') as f:
                 pickle.dump(vis_pickle,f)
             # V.draw_scenes(
             #     points=data_dict['points'][:, 1:], ref_boxes=pred_dicts[0]['pred_boxes'],
