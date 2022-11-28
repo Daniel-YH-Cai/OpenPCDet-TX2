@@ -99,10 +99,10 @@ def main():
             load_data_to_gpu(data_dict)
             pred_dicts, _ = model.forward(data_dict)
             vis_pickle={}
-            vis_pickle['points']=data_dict['points'][:,1:]
-            vis_pickle['result']=pred_dicts[0]
+            vis_pickle['points']=data_dict['points'][:,1:].cpu().numpy()
+            vis_pickle['result']=pred_dicts[0].cpu().numpy()
             print(pred_dicts)
-            with open("demo_result",'wb') as f:
+            with open("demo_result.pkl",'wb') as f:
                 pickle.dump(vis_pickle,f)
             # V.draw_scenes(
             #     points=data_dict['points'][:, 1:], ref_boxes=pred_dicts[0]['pred_boxes'],
