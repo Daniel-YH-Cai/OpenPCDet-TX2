@@ -42,6 +42,7 @@ def draw_scenes(points, gt_boxes=None, ref_boxes=None, ref_labels=None, ref_scor
 #     if isinstance(ref_boxes, torch.Tensor):
 #         ref_boxes = ref_boxes.cpu().numpy()
 
+
     vis = open3d.visualization.Visualizer()
     vis.create_window()
 

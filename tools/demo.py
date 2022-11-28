@@ -100,7 +100,9 @@ def main():
             pred_dicts, _ = model.forward(data_dict)
             vis_pickle={}
             vis_pickle['points']=data_dict['points'][:,1:].cpu().numpy()
-            vis_pickle['result']=pred_dicts[0].cpu().numpy()
+            vis_pickle['result']=pred_dicts[0]
+            for key in ['pred_boxes','pred_scores','pred_labels']:
+                vis_pickle['result'][key]=vis_pickle['result'][key].cpu().numpy()
             print(pred_dicts)
             with open("demo_result.pkl",'wb') as f:
                 pickle.dump(vis_pickle,f)
