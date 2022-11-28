@@ -123,5 +123,5 @@ if __name__ == '__main__':
     print(data_dict)
     draw_scenes(
         points=data_dict['points'][:, 1:], ref_boxes=pred['pred_boxes'],
-        ref_scores=pred[0]['pred_scores'], ref_labels=pred[0]['pred_labels']
+        ref_scores=pred['pred_scores'], ref_labels=pred['pred_labels']
     )
