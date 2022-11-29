@@ -33,14 +33,14 @@ def area(int_pts, num_of_inter):
 
 def sort_vertex_in_convex_polygon(int_pts, num_of_inter):
     if num_of_inter > 0:
-        center = numpy.array(2,dtype=numpy.float32)
+        center = numpy.ones(2,dtype=numpy.float32)
         for i in range(num_of_inter):
             center[0] += int_pts[2 * i]
             center[1] += int_pts[2 * i + 1]
         center[0] /= num_of_inter
         center[1] /= num_of_inter
-        v = numpy.array(2,dtype=numpy.float64)
-        vs = numpy.array(16,dtype=numpy.float64)
+        v = numpy.ones(2,dtype=numpy.float64)
+        vs = numpy.ones(16,dtype=numpy.float64)
         for i in range(num_of_inter):
             v[0] = int_pts[2 * i] - center[0]
             v[1] = int_pts[2 * i + 1] - center[1]
@@ -75,10 +75,10 @@ def line_segment_intersection(pts1, pts2, i, j, temp_pts):
     # B = cuda.local.array((2, ), dtype=numba.float32)
     # C = cuda.local.array((2, ), dtype=numba.float32)
     # D = cuda.local.array((2, ), dtype=numba.float32)
-    A = numpy.array(2,dtype=numpy.float32)
-    B = numpy.array(2, dtype=numpy.float32)
-    C = numpy.array(2, dtype=numpy.float32)
-    D = numpy.array(2, dtype=numpy.float32)
+    A = numpy.ones(2,dtype=numpy.float32)
+    B = numpy.ones(2, dtype=numpy.float32)
+    C = numpy.ones(2, dtype=numpy.float32)
+    D = numpy.ones(2, dtype=numpy.float32)
 
     A[0] = pts1[2 * i]
     A[1] = pts1[2 * i + 1]
@@ -191,7 +191,7 @@ def quadrilateral_intersection(pts1, pts2, int_pts):
             int_pts[num_of_inter * 2 + 1] = pts2[2 * i + 1]
             num_of_inter += 1
     # temp_pts = cuda.local.array((2, ), dtype=numba.float32)
-    temp_pts=numpy.array(2,dtype=numpy.float32)
+    temp_pts=numpy.ones(2,dtype=numpy.float32)
     for i in range(4):
         for j in range(4):
             has_pts = line_segment_intersection(pts1, pts2, i, j, temp_pts)
@@ -213,8 +213,8 @@ def rbbox_to_corners(corners, rbbox):
     center_y = rbbox[1]
     x_d = rbbox[2]
     y_d = rbbox[3]
-    corners_x = numpy.array(4, dtype=numpy.float32)
-    corners_y = numpy.array(4, dtype=numpy.float32)
+    corners_x = numpy.ones(4, dtype=numpy.float32)
+    corners_y = numpy.ones(4, dtype=numpy.float32)
     corners_x[0] = -x_d / 2
     corners_x[1] = -x_d / 2
     corners_x[2] = x_d / 2
@@ -232,9 +232,9 @@ def rbbox_to_corners(corners, rbbox):
 
 
 def inter(rbbox1, rbbox2):
-    corners1 = numpy.array(8, dtype=numpy.float32)
-    corners2 = numpy.array(8, dtype=numpy.float32)
-    intersection_corners = numpy.array(16, dtype=numpy.float32)
+    corners1 = numpy.ones(8, dtype=numpy.float32)
+    corners2 = numpy.ones(8, dtype=numpy.float32)
+    intersection_corners = numpy.ones(16, dtype=numpy.float32)
 
     rbbox_to_corners(corners1, rbbox1)
     rbbox_to_corners(corners2, rbbox2)
