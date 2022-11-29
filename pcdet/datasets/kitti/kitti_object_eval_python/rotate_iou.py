@@ -332,4 +332,4 @@ def rotate_iou_gpu_eval(boxes, query_boxes, criterion=-1, device_id=0):
     for num_boxs in range(N):
         for num_qbox in range(K):
             iou[num_boxs][num_qbox]=devRotateIoUEval(query_boxes[num_qbox],boxes[num_boxs],criterion)
-    return iou.astype(boxes.dtype)
+    return iou.reshape([-1]).astype(boxes.dtype)
