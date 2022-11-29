@@ -5,7 +5,7 @@
 #####################
 import math
 
-
+import numpy
 import numpy as np
 
 
@@ -33,15 +33,14 @@ def area(int_pts, num_of_inter):
 
 def sort_vertex_in_convex_polygon(int_pts, num_of_inter):
     if num_of_inter > 0:
-        center = cuda.local.array((2, ), dtype=numba.float32)
-        center[:] = 0.0
+        center = numpy.array(2,dtype=numpy.float32)
         for i in range(num_of_inter):
             center[0] += int_pts[2 * i]
             center[1] += int_pts[2 * i + 1]
         center[0] /= num_of_inter
         center[1] /= num_of_inter
-        v = cuda.local.array((2, ), dtype=numba.float32)
-        vs = cuda.local.array((16, ), dtype=numba.float32)
+        v = numpy.array(2,dtype=numpy.float64)
+        vs = numpy.array(16,dtype=numpy.float64)
         for i in range(num_of_inter):
             v[0] = int_pts[2 * i] - center[0]
             v[1] = int_pts[2 * i + 1] - center[1]
@@ -72,10 +71,14 @@ def sort_vertex_in_convex_polygon(int_pts, num_of_inter):
 
 
 def line_segment_intersection(pts1, pts2, i, j, temp_pts):
-    A = cuda.local.array((2, ), dtype=numba.float32)
-    B = cuda.local.array((2, ), dtype=numba.float32)
-    C = cuda.local.array((2, ), dtype=numba.float32)
-    D = cuda.local.array((2, ), dtype=numba.float32)
+    # A = cuda.local.array((2, ), dtype=numba.float32)
+    # B = cuda.local.array((2, ), dtype=numba.float32)
+    # C = cuda.local.array((2, ), dtype=numba.float32)
+    # D = cuda.local.array((2, ), dtype=numba.float32)
+    A = numpy.array(2,dtype=numpy.float32)
+    B = numpy.array(2, dtype=numpy.float32)
+    C = numpy.array(2, dtype=numpy.float32)
+    D = numpy.array(2, dtype=numpy.float32)
 
     A[0] = pts1[2 * i]
     A[1] = pts1[2 * i + 1]
@@ -115,10 +118,14 @@ def line_segment_intersection(pts1, pts2, i, j, temp_pts):
 
 
 def line_segment_intersection_v1(pts1, pts2, i, j, temp_pts):
-    a = cuda.local.array((2, ), dtype=numba.float32)
-    b = cuda.local.array((2, ), dtype=numba.float32)
-    c = cuda.local.array((2, ), dtype=numba.float32)
-    d = cuda.local.array((2, ), dtype=numba.float32)
+    # a = cuda.local.array((2, ), dtype=numba.float32)
+    # b = cuda.local.array((2, ), dtype=numba.float32)
+    # c = cuda.local.array((2, ), dtype=numba.float32)
+    # d = cuda.local.array((2, ), dtype=numba.float32)
+    a = numpy.array(2, dtype=numpy.float32)
+    b = numpy.array(2, dtype=numpy.float32)
+    c = numpy.array(2, dtype=numpy.float32)
+    d = numpy.array(2, dtype=numpy.float32)
 
     a[0] = pts1[2 * i]
     a[1] = pts1[2 * i + 1]
@@ -183,7 +190,8 @@ def quadrilateral_intersection(pts1, pts2, int_pts):
             int_pts[num_of_inter * 2] = pts2[2 * i]
             int_pts[num_of_inter * 2 + 1] = pts2[2 * i + 1]
             num_of_inter += 1
-    temp_pts = cuda.local.array((2, ), dtype=numba.float32)
+    # temp_pts = cuda.local.array((2, ), dtype=numba.float32)
+    temp_pts=numpy.array(2,dtype=numpy.float32)
     for i in range(4):
         for j in range(4):
             has_pts = line_segment_intersection(pts1, pts2, i, j, temp_pts)
@@ -205,8 +213,8 @@ def rbbox_to_corners(corners, rbbox):
     center_y = rbbox[1]
     x_d = rbbox[2]
     y_d = rbbox[3]
-    corners_x = cuda.local.array((4, ), dtype=numba.float32)
-    corners_y = cuda.local.array((4, ), dtype=numba.float32)
+    corners_x = numpy.array(4, dtype=numpy.float32)
+    corners_y = numpy.array(4, dtype=numpy.float32)
     corners_x[0] = -x_d / 2
     corners_x[1] = -x_d / 2
     corners_x[2] = x_d / 2
@@ -224,9 +232,9 @@ def rbbox_to_corners(corners, rbbox):
 
 
 def inter(rbbox1, rbbox2):
-    corners1 = cuda.local.array((8, ), dtype=numba.float32)
-    corners2 = cuda.local.array((8, ), dtype=numba.float32)
-    intersection_corners = cuda.local.array((16, ), dtype=numba.float32)
+    corners1 = numpy.array(8, dtype=numpy.float32)
+    corners2 = numpy.array(8, dtype=numpy.float32)
+    intersection_corners = numpy.array(16, dtype=numpy.float32)
 
     rbbox_to_corners(corners1, rbbox1)
     rbbox_to_corners(corners2, rbbox2)
@@ -254,36 +262,36 @@ def devRotateIoUEval(rbox1, rbox2, criterion=-1):
         return area_inter
 
 
-def rotate_iou_kernel_eval(N, K, dev_boxes, dev_query_boxes, dev_iou, criterion=-1):
-    threadsPerBlock = 8 * 8
-    row_start = cuda.blockIdx.x
-    col_start = cuda.blockIdx.y
-    tx = cuda.threadIdx.x
-    row_size = min(N - row_start * threadsPerBlock, threadsPerBlock)
-    col_size = min(K - col_start * threadsPerBlock, threadsPerBlock)
-    block_boxes = cuda.shared.array(shape=(64 * 5, ), dtype=numba.float32)
-    block_qboxes = cuda.shared.array(shape=(64 * 5, ), dtype=numba.float32)
-
-    dev_query_box_idx = threadsPerBlock * col_start + tx
-    dev_box_idx = threadsPerBlock * row_start + tx
-    if (tx < col_size):
-        block_qboxes[tx * 5 + 0] = dev_query_boxes[dev_query_box_idx * 5 + 0]
-        block_qboxes[tx * 5 + 1] = dev_query_boxes[dev_query_box_idx * 5 + 1]
-        block_qboxes[tx * 5 + 2] = dev_query_boxes[dev_query_box_idx * 5 + 2]
-        block_qboxes[tx * 5 + 3] = dev_query_boxes[dev_query_box_idx * 5 + 3]
-        block_qboxes[tx * 5 + 4] = dev_query_boxes[dev_query_box_idx * 5 + 4]
-    if (tx < row_size):
-        block_boxes[tx * 5 + 0] = dev_boxes[dev_box_idx * 5 + 0]
-        block_boxes[tx * 5 + 1] = dev_boxes[dev_box_idx * 5 + 1]
-        block_boxes[tx * 5 + 2] = dev_boxes[dev_box_idx * 5 + 2]
-        block_boxes[tx * 5 + 3] = dev_boxes[dev_box_idx * 5 + 3]
-        block_boxes[tx * 5 + 4] = dev_boxes[dev_box_idx * 5 + 4]
-    cuda.syncthreads()
-    if tx < row_size:
-        for i in range(col_size):
-            offset = row_start * threadsPerBlock * K + col_start * threadsPerBlock + tx * K + i
-            dev_iou[offset] = devRotateIoUEval(block_qboxes[i * 5:i * 5 + 5],
-                                           block_boxes[tx * 5:tx * 5 + 5], criterion)
+# def rotate_iou_kernel_eval(N, K, dev_boxes, dev_query_boxes, dev_iou,row_start,col_start,tx, criterion=-1):
+#     threadsPerBlock = 8 * 8
+#     row_start = cuda.blockIdx.x
+#     col_start = cuda.blockIdx.y
+#     tx = cuda.threadIdx.x
+#     row_size = min(N - row_start * threadsPerBlock, threadsPerBlock)
+#     col_size = min(K - col_start * threadsPerBlock, threadsPerBlock)
+#     block_boxes = cuda.shared.array(shape=(64 * 5, ), dtype=numpy.float32)
+#     block_qboxes = cuda.shared.array(shape=(64 * 5, ), dtype=numpy.float32)
+#
+#     dev_query_box_idx = threadsPerBlock * col_start + tx
+#     dev_box_idx = threadsPerBlock * row_start + tx
+#     if (tx < col_size):
+#         block_qboxes[tx * 5 + 0] = dev_query_boxes[dev_query_box_idx * 5 + 0]
+#         block_qboxes[tx * 5 + 1] = dev_query_boxes[dev_query_box_idx * 5 + 1]
+#         block_qboxes[tx * 5 + 2] = dev_query_boxes[dev_query_box_idx * 5 + 2]
+#         block_qboxes[tx * 5 + 3] = dev_query_boxes[dev_query_box_idx * 5 + 3]
+#         block_qboxes[tx * 5 + 4] = dev_query_boxes[dev_query_box_idx * 5 + 4]
+#     if (tx < row_size):
+#         block_boxes[tx * 5 + 0] = dev_boxes[dev_box_idx * 5 + 0]
+#         block_boxes[tx * 5 + 1] = dev_boxes[dev_box_idx * 5 + 1]
+#         block_boxes[tx * 5 + 2] = dev_boxes[dev_box_idx * 5 + 2]
+#         block_boxes[tx * 5 + 3] = dev_boxes[dev_box_idx * 5 + 3]
+#         block_boxes[tx * 5 + 4] = dev_boxes[dev_box_idx * 5 + 4]
+#     # cuda.syncthreads()
+#     if tx < row_size:
+#         for i in range(col_size):
+#             offset = row_start * threadsPerBlock * K + col_start * threadsPerBlock + tx * K + i
+#             dev_iou[offset] = devRotateIoUEval(block_qboxes[i * 5:i * 5 + 5],
+#                                            block_boxes[tx * 5:tx * 5 + 5], criterion)
 
 
 def rotate_iou_gpu_eval(boxes, query_boxes, criterion=-1, device_id=0):
@@ -309,16 +317,19 @@ def rotate_iou_gpu_eval(boxes, query_boxes, criterion=-1, device_id=0):
     iou = np.zeros((N, K), dtype=np.float32)
     if N == 0 or K == 0:
         return iou
-    threadsPerBlock = 8 * 8
-    cuda.select_device(device_id)
-    blockspergrid = (div_up(N, threadsPerBlock), div_up(K, threadsPerBlock))
+    # threadsPerBlock = 8 * 8
+    # cuda.select_device(device_id)
+    # blockspergrid = (div_up(N, threadsPerBlock), div_up(K, threadsPerBlock))
     
-    stream = cuda.stream()
-    with stream.auto_synchronize():
-        boxes_dev = cuda.to_device(boxes.reshape([-1]), stream)
-        query_boxes_dev = cuda.to_device(query_boxes.reshape([-1]), stream)
-        iou_dev = cuda.to_device(iou.reshape([-1]), stream)
-        rotate_iou_kernel_eval[blockspergrid, threadsPerBlock, stream](
-            N, K, boxes_dev, query_boxes_dev, iou_dev, criterion)
-        iou_dev.copy_to_host(iou.reshape([-1]), stream=stream)
+    # stream = cuda.stream()
+    # with stream.auto_synchronize():
+    # boxes_dev = cuda.to_device(boxes.reshape([-1]), stream)
+    # query_boxes_dev = cuda.to_device(query_boxes.reshape([-1]), stream)
+    # iou_dev = cuda.to_device(iou.reshape([-1]), stream)
+    # rotate_iou_kernel_eval[blockspergrid, threadsPerBlock, stream](
+    #     N, K, boxes_dev, query_boxes_dev, iou_dev, criterion)
+    # iou_dev.copy_to_host(iou.reshape([-1]), stream=stream)
+    for num_boxs in range(N):
+        for num_qbox in range(K):
+            iou[num_boxs][num_qbox]=devRotateIoUEval(query_boxes[num_qbox],boxes[num_boxs],criterion)
     return iou.astype(boxes.dtype)
